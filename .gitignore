@@ -36,6 +36,9 @@ cmake-build-*/
 Makefile
 .idea/
 
+# common directory name for out-of-tree CMake builds
+build*
+
 # Documentation.
 doc/_build
 doc/doxygen
