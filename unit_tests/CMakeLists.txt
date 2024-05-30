@@ -37,6 +37,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     # stop the compiler from complaining about unused variable in structured binding
     if (GCC_VERSION VERSION_LESS 8.0)
         target_compile_options(test_libswoc PRIVATE -Wno-unused-variable)
-    endif ()
+    endif()
 endif()
 
+add_test(NAME test_libswoc COMMAND test_libswoc)
