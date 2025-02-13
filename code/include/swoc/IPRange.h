@@ -1137,6 +1137,11 @@ public:
    */
   self_type &mark(IPRange const &range, PAYLOAD const &payload);
 
+  // TODO
+  // self_type &mark_bulk(std::pair<IP4Range, PAYLOAD>* range_payloads, size_t size);
+  self_type &mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size);
+  self_type &mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size);
+
   /** Fill the @a range with @a payload.
    *
    * @param range Destination range.
@@ -2463,6 +2468,20 @@ IPRange::NetSource::operator!=(self_type const &that) const {
 }
 
 // --- IPSpace
+
+template <typename PAYLOAD>
+auto
+IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size) -> self_type & {
+  _ip4.mark_bulk(range_payloads, size);
+  return *this;
+}
+
+template <typename PAYLOAD>
+auto
+IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size) -> self_type & {
+  _ip6.mark_bulk(range_payloads, size);
+  return *this;
+}
 
 template <typename PAYLOAD>
 auto
