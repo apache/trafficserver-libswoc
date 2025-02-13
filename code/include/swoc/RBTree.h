@@ -186,13 +186,20 @@ struct RBNode {
    * 
    * @param head         Copy of the head pointer of the list.
    * @param n            Number of nodes being processed at the current level.
-   * @param isBlack      Default is true (root node is always black).
    * @return self_type*  The root node of the tree.
    */
   static self_type * buildTree(self_type*& head, int n);
 
+  //! Called by buildTree above.
   static self_type * buildTree(self_type*& head, int n, bool isBlack);
 
+  /**
+   * @brief Recursively print the tree in a human-readable format.
+   *
+   * @param root   Root node of the tree.
+   * @param indent Indentation string.
+   * @param last   Flag to indicate if the node is the last node.
+   */
   static void printTree(self_type* root, std::string indent = "", bool last = true);
 
   Color _color{Color::RED};    ///< node color

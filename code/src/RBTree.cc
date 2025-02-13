@@ -308,8 +308,6 @@ RBNode::buildTree(RBNode*& head, int n)
   return root;
 }
 
-// This might produce a red node with single b child, I need to test.
-// Recursive function to build a balanced BST from a sorted doubly linked list.
 RBNode *
 RBNode::buildTree(RBNode*& head, int n, bool isBlack)
 {
@@ -345,8 +343,6 @@ RBNode::buildTree(RBNode*& head, int n, bool isBlack)
     if (n != 2)
     {
       // Recursively construct the right subtree.
-      // n - half_n - 1 is the number of nodes remaining from
-      // the left subtree and the current node.
       currNode->_right = buildTree(head, right_n, leftBranch->_color == Color::BLACK);
     }
     // If you have an n == 2 case, there is only a left child and it must be red.
@@ -365,7 +361,6 @@ RBNode::buildTree(RBNode*& head, int n, bool isBlack)
     return currNode;
 }
 
-//
 void
 RBNode::printTree(RBNode* root, std::string indent, bool last)
 {
