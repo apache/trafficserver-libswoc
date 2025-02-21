@@ -65,6 +65,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(libswoc PRIVATE -fPIC -Wall -Wextra -Werror -Wnon-virtual-dtor -Wpedantic -Wshadow)
 endif()
 
+# if BUILD_TESTING, then add a cpp defines for BUILD_TESTING
+if (BUILD_TESTING)
+    target_compile_definitions(libswoc PRIVATE BUILD_TESTING)
+endif()
+
 add_library(libswoc-static STATIC ${CC_FILES})
 set_target_properties(libswoc-static PROPERTIES OUTPUT_NAME swoc-static-${LIBSWOC_VERSION})
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -137,6 +142,6 @@ endif()
 # AFAICT the file isn't created at all even with this enabled.
 #export(TARGETS libswoc FILE libswoc-config.cmake)
 
-set(CLANG_DIRS )
+set(CLANG_DIRS)
 
 set_target_properties(libswoc-static PROPERTIES CLANG_FORMAT_DIRS "${PROJECT_SOURCE_DIR}/src;${PROJECT_SOURCE_DIR}/include")

@@ -2182,3 +2182,138 @@ TEST_CASE("IPRangeSet", "[libswoc][iprangeset]") {
   REQUIRE(n == addrs.count());
   REQUIRE(valid_p);
 }
+
+TEST_CASE("IPSpace mark_bulk", "[libswoc][ipspace][mark_bulk]") {
+    using PAYLOAD = unsigned;
+    using Space   = swoc::IPSpace<PAYLOAD>;
+
+    Space space;
+
+    // #1 mark_bulk onto an empty space
+    // Verify that it collapses ranges with the same payload.
+
+    unsigned currPayload = 0;
+    std::vector<std::pair<swoc::DiscreteRange<IP4Addr>, PAYLOAD>> addrs4;
+    std::vector<std::pair<swoc::DiscreteRange<IP6Addr>, PAYLOAD>> addrs6;
+
+    // 1.1.1.1 - 1.1.1.254, each range is length 1
+    for (int i = 1; i < 255; i += 1) {
+        addrs4.emplace_back(swoc::DiscreteRange<IP4Addr>{IP4Addr{"1.1.1."s + std::to_string(i)},
+                                                         IP4Addr{"1.1.1."s + std::to_string(i + 1)}},
+                            (currPayload++) / 2);
+    }
+
+    // ::1 - ::254, each range is length 1
+    for (int i = 1; i < 255; i += 1) {
+        addrs6.emplace_back(swoc::DiscreteRange<IP6Addr>{IP6Addr{"::"s + std::to_string(i)},
+                                                         IP6Addr{"::"s + std::to_string(i + 1)}},
+                            (currPayload++) / 2);
+    }
+
+    // Verify successful mark_bulk
+    space.mark_bulk(addrs4.data(), addrs4.size());
+    space.mark_bulk(addrs6.data(), addrs6.size());
+
+    // Verify that the count is correct
+    REQUIRE(space.count() == (addrs4.size() + addrs6.size()) / 2);
+
+    // Verify that the payloads are correct
+    for (auto const& [range, payload] : addrs4) {
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip4() == range);
+        REQUIRE(p == payload);
+    }
+
+    for (auto const& [range, payload] : addrs6) {
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip6() == range);
+        REQUIRE(p == payload);
+    }
+
+    // #2 mark_bulk onto the end of the existing space
+    addrs4.emplace_back(swoc::DiscreteRange<IP4Addr>{IP4Addr{"1.1.2.1"s},
+                                                     IP4Addr{"1.1.2.255"s}},
+                        currPayload++);
+    addrs4.emplace_back(swoc::DiscreteRange<IP4Addr>{IP4Addr{"1.1.3.1"s},
+                                                     IP4Addr{"1.1.3.255"s}},
+                        currPayload++);
+
+    addrs6.emplace_back(swoc::DiscreteRange<IP6Addr>{IP6Addr{"::1:1"s},
+                                                     IP6Addr{"::1:255"s}},
+                        currPayload++);
+    addrs6.emplace_back(swoc::DiscreteRange<IP6Addr>{IP6Addr{"::2:1"s},
+                                                     IP6Addr{"::2:255"s}},
+                        currPayload++);
+
+    // Verify successful mark_bulk
+    space.mark_bulk(addrs4.data(), addrs4.size());
+    space.mark_bulk(addrs6.data(), addrs6.size());
+
+    // Verify that the payloads are correct
+    for (auto const& [range, payload] : addrs4) {
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip4() == range);
+        REQUIRE(p == payload);
+    }
+
+    for (auto const& [range, payload] : addrs6) {
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip6() == range);
+        REQUIRE(p == payload);
+    }
+
+    // #3 Insert ranges into the middle of an existing range
+
+    std::vector<std::pair<swoc::DiscreteRange<IP4Addr>, PAYLOAD>> insert4;
+    std::vector<std::pair<swoc::DiscreteRange<IP6Addr>, PAYLOAD>> insert6;
+
+    insert4.emplace_back(swoc::DiscreteRange<IP4Addr>{IP4Addr{"1.1.2.10"s},
+        IP4Addr{"1.1.2.20"s}},
+                         currPayload++);
+                         
+    insert6.emplace_back(swoc::DiscreteRange<IP6Addr>{IP6Addr{"::1:10"s},
+            IP6Addr{"::1:20"s}},
+    currPayload++);
+
+    space.mark_bulk(insert4.data(), insert4.size());
+    space.mark_bulk(insert6.data(), insert6.size());
+
+    // Verify that the ranges were split up.
+    {
+        auto [range, payload] = addrs4[addrs4.size() - 2];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip4() == range);
+        REQUIRE(p == payload);
+    }
+    {
+        auto [range, payload] = insert4[0];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip4() == range);
+        REQUIRE(p == payload);
+    }
+    {
+        auto [range, payload] = addrs4[addrs4.size() - 1];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip4() == range);
+        REQUIRE(p == payload);
+    }
+    {
+        auto [range, payload] = addrs6[addrs6.size() - 2];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip6() == range);
+        REQUIRE(p == payload);
+    }
+    {
+        auto [range, payload] = insert6[0];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip6() == range);
+        REQUIRE(p == payload);
+    }
+    {
+        auto [range, payload] = addrs6[addrs6.size() - 1];
+        auto [r, p] = *(space.find(range.min()));
+        REQUIRE(r.ip6() == range);
+        REQUIRE(p == payload);
+    }
+
+}

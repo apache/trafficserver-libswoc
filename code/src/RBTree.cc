@@ -339,7 +339,7 @@ RBNode::buildTree(RBNode*& head, int n, bool isBlack)
   
     // If this is currently processing 2 nodes, then don't make a right branch
     // because the left branch has already been made.
-    // No need to check for head == nullptr here because n > 3 inside the block.
+    // No need to check for head == nullptr here because n > 2 inside the block.
     if (n != 2)
     {
       // Recursively construct the right subtree.
@@ -390,7 +390,7 @@ RBNode::printTree(RBNode* root, std::string indent, bool last)
     */
 int
 RBNode::validate() {
-#if 0
+#if BUILD_TESTING
   int black_ht = 0;
   int black_ht1, black_ht2;
 

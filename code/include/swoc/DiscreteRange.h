@@ -1350,7 +1350,7 @@ DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::pair<range_type, PAYLOAD>* start,
   // Timer [tree]: 0.0280254 seconds
   // Rebuild the entire red-black tree.
   detail::RBNode* temp_head = _list.head();
-  _root = static_cast<Node *>(swoc::detail::RBNode::buildTree(temp_head, _list.count()));
+  _root = static_cast<Node *>(detail::RBNode::buildTree(temp_head, _list.count()));
 }
 
 template <typename METRIC, typename PAYLOAD>
