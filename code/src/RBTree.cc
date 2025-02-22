@@ -316,6 +316,7 @@ RBNode::buildTree(RBNode*& head, int n, bool isBlack)
       RBNode* currNode = head;
       currNode->_color = isBlack ? Color::BLACK : Color::RED;
       head = head->_next;
+      currNode->structure_fixup();
       return currNode;
     }
   
@@ -357,6 +358,9 @@ RBNode::buildTree(RBNode*& head, int n, bool isBlack)
     {
       currNode->_color = Color::BLACK;
     }
+
+    // structure_fixup() needs to be called from the leaf nodes upward.
+    currNode->structure_fixup();
 
     return currNode;
 }

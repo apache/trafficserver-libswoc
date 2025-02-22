@@ -718,7 +718,7 @@ protected:
     using super_type = detail::RBNode; ///< Parent class.
     friend class DiscreteSpace;
 
-    range_type _range;  ///< Range covered by this node.
+    range_type _range;  ///< Range covered by this node (in the IntrusiveDList).
     range_type _hull;   ///< Range covered by subtree rooted at this node.
     PAYLOAD _payload{}; ///< Default constructor, should zero init if @c PAYLOAD is a pointer.
 
@@ -757,16 +757,22 @@ protected:
     }
 
     self_type &
-    assign_min(METRIC const &m) {
+    assign_min(METRIC const &m, bool updateTree = true) {
       _range.assign_min(m);
-      this->ripple_structure_fixup();
+      if (updateTree)
+      {
+        this->ripple_structure_fixup();
+      }
       return *this;
     }
 
     self_type &
-    assign_max(METRIC const &m) {
+    assign_max(METRIC const &m, bool updateTree = true) {
       _range.assign_max(m);
-      this->ripple_structure_fixup();
+      if (updateTree)
+      {
+        this->ripple_structure_fixup();
+      }
       return *this;
     }
 
@@ -1377,7 +1383,7 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
       if (p && p->payload() == payload && p->max() == min_minus_1) {
         x = p;
         n = x; // need to back up n because frame of reference moved.
-        x->assign_max(range.max());
+        x->assign_max(range.max(), updateTree);
       } else if (n->max() <= range.max()) {
         // Span will be subsumed by request span so it's available for use.
         x = n;
@@ -1387,7 +1393,7 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
       } else {
         // request span is covered by existing span.
         x = _fa.make(range, payload); //
-        n->assign_min(max_plus_1);    // clip existing.
+        n->assign_min(max_plus_1, updateTree);    // clip existing.
         this->insert_before(n, x, updateTree);
         return *this;
       }
@@ -1398,18 +1404,22 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
       if (x->max() >= range.max()) {
         return *this;
       }
-      x->assign_max(range.max());
+      x->assign_max(range.max(), updateTree);
     } else if (n->max() <= range.max()) {
       // Can only have left skew overlap, otherwise disjoint.
       // Clip if overlap.
       if (n->max() >= range.min()) {
-        n->assign_max(min_minus_1);
+        n->assign_max(min_minus_1, updateTree);
       } else if (nullptr != (y = next(n)) && y->max() <= range.max()) {
         // because @a n was selected as the minimum it must be the case that
         // y->min >= min (or y would have been selected). Therefore in this
         // case the request covers the next node therefore it can be reused.
         x = y;
-        x->assign(range).assign(payload).ripple_structure_fixup();
+        x->assign(range).assign(payload);
+        if (updateTree)
+        {
+            x->ripple_structure_fixup();
+        }
         n = x; // this gets bumped again, which is correct.
       }
     } else {
@@ -1419,7 +1429,7 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
       Node *r;
       x = _fa.make(range, payload);
       r = _fa.make(range_type{max_plus_1, n->max()}, n->payload());
-      n->assign_max(min_minus_1);
+      n->assign_max(min_minus_1, updateTree);
       this->insert_after(n, x, updateTree);
       this->insert_after(x, r, updateTree);
       return *this; // done.
@@ -1440,9 +1450,9 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
     // Same payload with overlap, re-use.
     x = n;
     n = next(n);
-    x->assign_min(range.min());
+    x->assign_min(range.min(), updateTree);
     if (x->max() < range.max()) {
-      x->assign_max(range.max());
+      x->assign_max(range.max(), updateTree);
     }
   } else {
     x = _fa.make(range, payload);
@@ -1459,12 +1469,12 @@ DiscreteSpace<METRIC, PAYLOAD>::mark(DiscreteSpace::range_type const &range, PAY
     } else if (max_plus_1 < n->min()) { // no overlap, done.
       break;
     } else if (n->payload() == payload) { // skew overlap or adj., same payload
-      x->assign_max(n->max());
+      x->assign_max(n->max(), updateTree);
       y = n;
       n = next(n);
       this->remove(y, updateTree);
     } else if (n->min() <= range.max()) { // skew overlap different payload
-      n->assign_min(max_plus_1);
+      n->assign_min(max_plus_1, updateTree);
       break;
     } else { // n->min() > range.max(), different payloads - done.
       break;
