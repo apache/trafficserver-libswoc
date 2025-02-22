@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
 
 project(Lib-SWOC CXX)
-set(LIBSWOC_VERSION "1.5.13")
+set(LIBSWOC_VERSION "1.5.14")
 set(CMAKE_CXX_STANDARD 17)
 cmake_policy(SET CMP0087 NEW)
 # override "lib64" to be "lib" unless the user explicitly sets it.
@@ -138,7 +138,7 @@ if (LIBSWOC_INSTALL)
     )
 endif()
 
-# Alledgedly this makes the targets "importable from the build directory" but I see no evidence of that.
+# Allegedly this makes the targets "importable from the build directory" but I see no evidence of that.
 # AFAICT the file isn't created at all even with this enabled.
 #export(TARGETS libswoc FILE libswoc-config.cmake)
 
