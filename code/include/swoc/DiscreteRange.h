@@ -1363,14 +1363,16 @@ template <typename METRIC, typename PAYLOAD>
 DiscreteSpace<METRIC, PAYLOAD> &
 DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::pair<range_type, PAYLOAD>* start, size_t n)
 {
-  // Timer [i_range]: 0.934797 seconds
+  // Timer [i_range]: ~1.2 seconds for n=3355591
+  // Loop takes ~0.357612 microseconds in total.
   for (size_t i = 0; i < n; ++i)
   {
     auto const& [range, payload] = start[i];
     this->mark(range, payload, false);
   }
 
-  // Timer [tree]: 0.0280254 seconds
+  // Timer [tree]: ~0.06 seconds for n=3355591
+  // buildTree() takes ~0.017881 microseconds.
   // Rebuild the entire red-black tree.
   detail::RBNode* temp_head = _list.head();
   _root = static_cast<Node *>(detail::RBNode::buildTree(temp_head, _list.count()));
