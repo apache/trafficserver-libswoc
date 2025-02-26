@@ -194,6 +194,12 @@ mark
    payload present. This is modeled on the "painter's algorithm" where the most recent coloring
    replaces any prior colors in the region.
 
+mark_bulk
+   :libswoc:`swoc::IPSpace::mark_bulk` applies multiple :arg:`payload` to the range using the same
+   logic as :code:`mark`. This has much better performance than calling :code:`mark` many times in
+   succession, and results in a much more balanced RBTree structure (for faster lookups) in the case
+   where ip ranges are inserted in ascending order.
+
 fill
    :libswoc:`swoc::IPSpace::fill` applies the :arg:`payload` to the range but only where there is not
    already a payload. This is modeled on "backfilling" a background. This is useful for "first match"
