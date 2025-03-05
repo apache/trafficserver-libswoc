@@ -1144,14 +1144,9 @@ DiscreteSpace<METRIC, PAYLOAD>::lower_node(METRIC const &target) -> Node * {
   Node *n    = _root;   // current node to test.
   Node *zret = nullptr; // best node so far.
 
-  // Fast check for append.
+  // Fast check for sequential insertion
   if (auto ln = _list.tail(); ln != nullptr && ln->max() < target) {
     return ln;
-  }
-
-  // Fast check for prepend.
-  if (auto hn = _list.head(); hn != nullptr && hn->min() > target) {
-    return hn;
   }
 
   while (n) {
@@ -1374,28 +1369,25 @@ DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::pair<range_type, PAYLOAD>* start,
   if (!isSorted)
   {
     // Stable sort allows for duplicate elements.
-    std::stable_sort(start, start + n, [](const auto &a, const auto &b) {
-      return a.first < b.first;
+    std::stable_sort(start, start + n, [](const auto &lhs, const auto &rhs) {
+      if (lhs.first.min() != rhs.first.min()) {
+        return lhs.first.min() < rhs.first.min();
+      }
+      return lhs.first.max() < rhs.first.max();
     });
   }
 
-  // Check if this is purely an append or prepend operation.
-  // If the input overlaps the list at all, then we're forced to update the RBTree as
-  // elements are inserted (this is the suboptimal case).
-  bool isPrepend = _list.empty() || _list.head()->min() > start[0].first.max();
+  // Verify that this is purely an append operation.
+  // If it's not, then we need to rebuild the entire tree each iteration (suboptimal case).
   bool isAppend = !_list.empty() && _list.tail()->max() < start[0].first.min();
-  bool updateTree = !isPrepend && !isAppend;
 
-  // Timer [i_range]: ~1.2 seconds for n=3355591
-  // Loop takes ~0.357612 microseconds in total.
+  // Mark the ranges in the input data.
   for (size_t i = 0; i < n; ++i)
   {
     auto const& [range, payload] = start[i];
-    this->mark(range, payload, updateTree);
+    this->mark(range, payload, !isAppend);
   }
 
-  // Timer [tree]: ~0.06 seconds for n=3355591
-  // buildTree() takes ~0.017881 microseconds.
   // Rebuild the entire red-black tree.
   detail::RBNode* temp_head = _list.head();
   _root = static_cast<Node *>(detail::RBNode::buildTree(temp_head, _list.count()));
