@@ -2505,14 +2505,14 @@ IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_pa
 template <typename PAYLOAD>
 auto
 IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP4Addr>, PAYLOAD>>& range_payloads, bool isSorted) -> self_type & {
-  _ip4.mark_bulk(range_payloads);
+  _ip4.mark_bulk(range_payloads, isSorted);
   return *this;
 }
 
 template <typename PAYLOAD>
 auto
 IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP6Addr>, PAYLOAD>>& range_payloads, bool isSorted) -> self_type & {
-  _ip6.mark_bulk(range_payloads);
+  _ip6.mark_bulk(range_payloads, isSorted);
   return *this;
 }
 
