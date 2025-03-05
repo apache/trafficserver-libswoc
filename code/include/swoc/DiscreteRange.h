@@ -838,17 +838,19 @@ public:
   /** Mark ranges in one operation.
    * 
    * @param marks Vector of ranges and payloads to mark.
+   * @param isSorted @c true if input is sorted, @c false if not. Assumes not sorted.
    * @return @a this
    */
-  self_type &mark_bulk(std::vector<std::pair<range_type, PAYLOAD>> const &marks);
+  self_type &mark_bulk(std::vector<std::pair<range_type, PAYLOAD>> &marks, bool isSorted = false);
 
   /** Mark ranges in one operation.
    * 
    * @param start Pointer to the first range/payload pair.
    * @param n Number of pairs.
+   * @param isSorted @c true if input is sorted, @c false if not. Assumes not sorted.
    * @return @a this
    */
-  self_type &mark_bulk(std::pair<range_type, PAYLOAD>* start, size_t n);
+  self_type &mark_bulk(std::pair<range_type, PAYLOAD>* start, size_t n, bool isSorted = false);
 
   /** Set the @a payload for a @a range
    *
@@ -980,7 +982,7 @@ protected:
   /** Find the upper bound node.
    *
    * @param target Search value.
-   * @return The leftmoswt range that starts after @a target, or @c nullptr if all ranges start
+   * @return The leftmost range that starts after @a target, or @c nullptr if all ranges start
    * before @a target.
    */
   Node *upper_node(METRIC const &target);
@@ -1142,9 +1144,14 @@ DiscreteSpace<METRIC, PAYLOAD>::lower_node(METRIC const &target) -> Node * {
   Node *n    = _root;   // current node to test.
   Node *zret = nullptr; // best node so far.
 
-  // Fast check for sequential insertion
+  // Fast check for append.
   if (auto ln = _list.tail(); ln != nullptr && ln->max() < target) {
     return ln;
+  }
+
+  // Fast check for prepend.
+  if (auto hn = _list.head(); hn != nullptr && hn->min() > target) {
+    return hn;
   }
 
   while (n) {
@@ -1355,20 +1362,36 @@ DiscreteSpace<METRIC, PAYLOAD>::erase(DiscreteSpace::range_type const &range) {
 
 template <typename METRIC, typename PAYLOAD>
 DiscreteSpace<METRIC, PAYLOAD> &
-DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteSpace::range_type, PAYLOAD>> const &ranges) {
-  return this->mark_bulk(ranges.data(), ranges.size());
+DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteSpace::range_type, PAYLOAD>> &ranges, bool isSorted) {
+  return this->mark_bulk(ranges.data(), ranges.size(), isSorted);
 }
 
 template <typename METRIC, typename PAYLOAD>
 DiscreteSpace<METRIC, PAYLOAD> &
-DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::pair<range_type, PAYLOAD>* start, size_t n)
+DiscreteSpace<METRIC, PAYLOAD>::mark_bulk(std::pair<range_type, PAYLOAD>* start, size_t n, bool isSorted)
 {
+  // Sort the input data in-place before processing, if applicable.
+  if (!isSorted)
+  {
+    // Stable sort allows for duplicate elements.
+    std::stable_sort(start, start + n, [](const auto &a, const auto &b) {
+      return a.first < b.first;
+    });
+  }
+
+  // Check if this is purely an append or prepend operation.
+  // If the input overlaps the list at all, then we're forced to update the RBTree as
+  // elements are inserted (this is the suboptimal case).
+  bool isPrepend = _list.empty() || _list.head()->min() > start[0].first.max();
+  bool isAppend = !_list.empty() && _list.tail()->max() < start[0].first.min();
+  bool updateTree = !isPrepend && !isAppend;
+
   // Timer [i_range]: ~1.2 seconds for n=3355591
   // Loop takes ~0.357612 microseconds in total.
   for (size_t i = 0; i < n; ++i)
   {
     auto const& [range, payload] = start[i];
-    this->mark(range, payload, false);
+    this->mark(range, payload, updateTree);
   }
 
   // Timer [tree]: ~0.06 seconds for n=3355591

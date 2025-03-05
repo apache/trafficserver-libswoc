@@ -2212,8 +2212,8 @@ TEST_CASE("IPSpace mark_bulk", "[libswoc][ipspace][mark_bulk]") {
     }
 
     // Verify successful mark_bulk
-    space.mark_bulk(addrs4.data(), addrs4.size());
-    space.mark_bulk(addrs6.data(), addrs6.size());
+    space.mark_bulk(addrs4.data(), addrs4.size(), true);
+    space.mark_bulk(addrs6.data(), addrs6.size(), true);
 
     // Verify that the count is correct
     REQUIRE(space.count() == (addrs4.size() + addrs6.size()) / 2);
@@ -2249,8 +2249,8 @@ TEST_CASE("IPSpace mark_bulk", "[libswoc][ipspace][mark_bulk]") {
                         currPayload++);
 
     // Verify successful mark_bulk
-    space.mark_bulk(addrs4.data(), addrs4.size());
-    space.mark_bulk(addrs6.data(), addrs6.size());
+    space.mark_bulk(addrs4, true);
+    space.mark_bulk(addrs6, true);
 
     // Verify that the payloads are correct
     for (auto const& [range, payload] : addrs4) {
@@ -2280,8 +2280,8 @@ TEST_CASE("IPSpace mark_bulk", "[libswoc][ipspace][mark_bulk]") {
             IP6Addr{"::1:20"}},
     currPayload++);
 
-    space.mark_bulk(insert4.data(), insert4.size());
-    space.mark_bulk(insert6.data(), insert6.size());
+    space.mark_bulk(insert4.data(), insert4.size(), true);
+    space.mark_bulk(insert6, true);
 
     // Verify that the ranges were split up.
     {

@@ -1141,23 +1141,25 @@ public:
    * 
    * @param range_payloads Array of range/payload pairs.
    * @param size Number of elements in @a range_payloads.
+   * @param isSorted @c true if input is sorted, @c false if not. Assumes not sorted.
    * @return @a this
    */
-  self_type &mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size);
+  self_type &mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size, bool isSorted = false);
 
   //! vector-based interface for the previous function.
-  self_type &mark_bulk(std::vector<std::pair<DiscreteRange<IP4Addr>, PAYLOAD>>& range_payloads);
+  self_type &mark_bulk(std::vector<std::pair<DiscreteRange<IP4Addr>, PAYLOAD>>& range_payloads, bool isSorted = false);
 
   /** Mark ranges of IP6Addr in the IPSpace in one operation.
    * 
    * @param range_payloads Array of range/payload pairs.
    * @param size Number of elements in @a range_payloads.
+   * @param isSorted @c true if input is sorted, @c false if not. Assumes not sorted.
    * @return @a this
    */
-  self_type &mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size);
+  self_type &mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size, bool isSorted = false);
 
   //! vector-based interface for the previous function.
-  self_type &mark_bulk(std::vector<std::pair<DiscreteRange<IP6Addr>, PAYLOAD>>& range_payloads);
+  self_type &mark_bulk(std::vector<std::pair<DiscreteRange<IP6Addr>, PAYLOAD>>& range_payloads, bool isSorted = false);
 
   /** Fill the @a range with @a payload.
    *
@@ -2488,28 +2490,28 @@ IPRange::NetSource::operator!=(self_type const &that) const {
 
 template <typename PAYLOAD>
 auto
-IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size) -> self_type & {
-  _ip4.mark_bulk(range_payloads, size);
+IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP4Addr>, PAYLOAD>* range_payloads, size_t size, bool isSorted) -> self_type & {
+  _ip4.mark_bulk(range_payloads, size, isSorted);
   return *this;
 }
 
 template <typename PAYLOAD>
 auto
-IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size) -> self_type & {
-  _ip6.mark_bulk(range_payloads, size);
+IPSpace<PAYLOAD>::mark_bulk(std::pair<DiscreteRange<IP6Addr>, PAYLOAD>* range_payloads, size_t size, bool isSorted) -> self_type & {
+  _ip6.mark_bulk(range_payloads, size, isSorted);
   return *this;
 }
 
 template <typename PAYLOAD>
 auto
-IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP4Addr>, PAYLOAD>>& range_payloads) -> self_type & {
+IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP4Addr>, PAYLOAD>>& range_payloads, bool isSorted) -> self_type & {
   _ip4.mark_bulk(range_payloads);
   return *this;
 }
 
 template <typename PAYLOAD>
 auto
-IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP6Addr>, PAYLOAD>>& range_payloads) -> self_type & {
+IPSpace<PAYLOAD>::mark_bulk(std::vector<std::pair<DiscreteRange<IP6Addr>, PAYLOAD>>& range_payloads, bool isSorted) -> self_type & {
   _ip6.mark_bulk(range_payloads);
   return *this;
 }
