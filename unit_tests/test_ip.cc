@@ -2431,8 +2431,6 @@ TEST_CASE("IPSpace mark_bulk randomized", "[libswoc][ipspace][mark_bulk][randomi
         REQUIRE(p == payload);
     }
 
-    
-
     // Create another ip range before the previous two
     std::vector<std::pair<swoc::DiscreteRange<IP4Addr>, PAYLOAD>> addrs4_3;
     std::vector<std::pair<swoc::DiscreteRange<IP6Addr>, PAYLOAD>> addrs6_3;
