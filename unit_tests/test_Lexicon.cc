@@ -19,11 +19,15 @@ using ExampleNames = swoc::Lexicon<Example>;
 
 namespace {
 
+// This section won't compile for GNU 13.
+#if __GNUC__ != 13
+
 // C++20: This compiles because one of the lists has more than 2 elements.
 // I think it's a g++ bug - it compiles in clang. The @c TextView constructor being used
 // is marked @c explicit and so it should be discarded. If the constructor is used explicitly
 // then it doesn't compile as intended. Therefore g++ is accepting a constructor that doesn't work.
 // doc.cpp.20.bravo.start
+
 [[maybe_unused]] ExampleNames Static_Names_Basic{
   {{Example::Value_0, {"zero", "0", "none"}},
    {Example::Value_1, {"one", "1"}},
@@ -43,6 +47,8 @@ namespace {
    {Example::INVALID, {"INVALID"}}}
 };
 // doc.cpp.20.alpha.end
+
+#endif
 
 // If the type isn't easily accessible.
 [[maybe_unused]] ExampleNames Static_Names_Decl{

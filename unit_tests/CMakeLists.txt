@@ -41,3 +41,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 add_test(NAME test_libswoc COMMAND test_libswoc)
+
+# Copy files required by tests into the cmake build folder
+file(COPY ${CMAKE_SOURCE_DIR}/doc/conf.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/doc)
+file(COPY ${CMAKE_SOURCE_DIR}/unit_tests/examples/resolver.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/unit_tests/examples)
+file(COPY ${CMAKE_SOURCE_DIR}/unit_tests/test_swoc_file.cc DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/unit_tests)
