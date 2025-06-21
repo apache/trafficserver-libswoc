@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxcontrib.plantuml',
     'sphinxcontrib.doxylink',
+    'sphinxcontrib.jquery',
     'local'
 ]
 
@@ -189,11 +190,11 @@ html_logo = 'images/balcora-gate-400x400.jpg'
 
 # Include a stylesheet that overrides default table styling, to provide
 # content wrapping.
-html_context = {
-    'css_files': [
-        '_static/override.css'
-    ]
-}
+#html_context = {
+#    'css_files': [
+#        '_static/override.css'
+#    ]
+#}
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
