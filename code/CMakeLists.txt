@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 cmake_policy(SET CMP0087 NEW)
 # override "lib64" to be "lib" unless the user explicitly sets it.
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "directory for libraries" FORCE)
+include(CMakeDependentOption)
 include(GNUInstallDirs)
 
 cmake_dependent_option(LIBSWOC_INSTALL
