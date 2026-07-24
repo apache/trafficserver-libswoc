@@ -1,18 +1,13 @@
-# Compiled Object files
+# Compiled Objects
 *.o
 *.obj
-*.swp
-*.cbp
 
-# Pkg-config files
-*.pc
-
-# Compiled Dynamic libraries
+# Shared Libraries
 *.so
 *.dylib
 *.dll
 
-# Compiled Static libraries
+# Static Libraries
 *.a
 *.lib
 
@@ -20,36 +15,62 @@
 *.exe
 *.out
 *.app
+
+# Example Executables
 example/ex_diskstats
 example/ex_flat_space
 example/ex_host_file
 example/ex_lru_cache
 example/ex_netcompact
 example/ex_netdb
+
+# Test Executable
 unit_tests/test_libswoc
 
-# CMake cruft
-*.cmake
-CMakeFiles/
-CMakeCache.txt
-cmake-build-*/
-Makefile
-.idea/
-
-# Documentation.
-doc/_build
-doc/doxygen
-doc/reference
-doc/ext/local-config.py
-doc/ext/__*
-venv/
-.parts.cache
-.sconsign.dblite
+# Build Directories
+build/
+Build/
+build-*/
 _build
 _install
 _sdk
 _unit_tests
 
+# CMake Build Files
+*.cmake
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
 
+# Make Build Files
+Makefile
 
+# SCons Files
+.parts.cache
+.sconsign.dblite
+
+# pkg-config Files
+*.pc
+
+# Compilation Database
+/compile_commands.json
+
+# Cache Directories
+/.cache/
+
+# Documentation
+doc/_build
+doc/doxygen
+doc/reference
+doc/ext/local-config.py
+doc/ext/__*
+
+# Python
+venv/
 Pipfile.lock
+
+# Editor & IDE Files
+*.cbp
+*.swp
+.idea/
+.vscode/
