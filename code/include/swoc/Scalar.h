@@ -156,6 +156,8 @@ template <intmax_t N, typename C, typename T> struct scalar_round_down_t {
     up or down to the nearest scale value.
 
     @a N sets the scale. @a C is the type used to hold the count, which is in units of @a N.
+    The count type defaults to @c intmax_t so that the value in base units (the count times @a N)
+    does not overflow for scaled values that do not fit in an @c int, such as memory sizes of 2GB or more.
 
     @a T is a "tag" type which is used only to distinguish the base metric for the scale. Scalar
     types that have different tags are not interoperable although they can be converted manually by
@@ -169,7 +171,7 @@ template <intmax_t N, typename C, typename T> struct scalar_round_down_t {
     @see round_up
     @see round_down
  */
-template <intmax_t N, typename C = int, typename T = tag::generic> class Scalar {
+template <intmax_t N, typename C = intmax_t, typename T = tag::generic> class Scalar {
   using self_type = Scalar; ///< Self reference type.
 
 public:

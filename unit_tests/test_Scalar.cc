@@ -20,6 +20,7 @@
 
 #include "swoc/Scalar.h"
 #include "swoc/bwf_base.h"
+#include <type_traits>
 #include <catch2/catch_test_macros.hpp>
 
 using Bytes      = swoc::Scalar<1, off_t>;
@@ -254,4 +255,25 @@ TEST_CASE("Scalar Formatting", "[libswoc][Scalar][bwf]") {
   REQUIRE(w.view() == "x is 12288 bytes");
   w.clear().print("y is {}", y);
   REQUIRE(w.view() == "y is 12000");
+}
+
+TEST_CASE("Scalar default counter", "[libswoc][Scalar][counter]") {
+  // The default counter type has to hold a scaled value that does not fit in an int. MemArena rounds
+  // block sizes through Scalar<4096> and Scalar<16>, and a block of 2GB or more used to overflow.
+  using Page      = swoc::Scalar<4096>;
+  using Paragraph = swoc::Scalar<16>;
+  static_assert(std::is_same_v<Page::Counter, intmax_t>, "The default counter type must be 64 bits wide.");
+
+  constexpr size_t three_gb = size_t(3) << 30;
+
+  Page pages{swoc::round_up(three_gb)};
+  REQUIRE(pages.count() == static_cast<intmax_t>(three_gb / 4096));
+  REQUIRE(pages.value() == static_cast<intmax_t>(three_gb));
+
+  Paragraph paragraphs{swoc::round_up(three_gb + 1)};
+  REQUIRE(paragraphs.value() == static_cast<intmax_t>(three_gb + 16));
+
+  // The conversion MemArena depends on: scaled value to a size_t, without going negative on the way.
+  size_t const bytes = pages;
+  REQUIRE(bytes == three_gb);
 }
